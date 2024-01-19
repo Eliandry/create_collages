@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Processor</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function(){
+          $("#uploadForm").submit(function(event){
+            event.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+              url: '/upload',
+              type: 'POST',
+              data: formData,
+              contentType: false,
+              processData: false,
+              success: function(data){
+                alert(data);
+                checkStatus();
+              }
+            });
+          });
+
+          function checkStatus(){
+      $.ajax({
+        url: '/status',
+        type: 'GET',
+        success: function(data){
+          if(data.processing_complete){
+            $("#status").html('<div class="alert alert-success">Завершено!!! <a href="/download">Скачать файл</a></div>');
+          } else {
+            $("#status").html('<div class="alert alert-info">Processing...</div>');
+            setTimeout(checkStatus, 3000); // Проверять каждые 3 секунды
+          }
+        }
+      });
+    }
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-5">Загрузите Zip архив</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="file">ZIP File</label>
+            <input type="file" class="form-control-file" id="file" name="file" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Загрузить и начать обработку</button>
+    </form>
+    <div id="status"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
